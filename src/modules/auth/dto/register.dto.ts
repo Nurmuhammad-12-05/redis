@@ -14,4 +14,7 @@ export class RegisterAuthDto {
   @IsString()
   @IsStrongPassword()
   password: string;
+
+  @IsString()
+  session_token: string;
 }

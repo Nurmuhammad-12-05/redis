@@ -7,7 +7,7 @@ export class VerifyOtpDto {
   phone_number: string;
 
   @IsString()
-  @MaxLength(4)
-  @MinLength(4)
+  @MaxLength(6)
+  @MinLength(1)
   code: string;
 }

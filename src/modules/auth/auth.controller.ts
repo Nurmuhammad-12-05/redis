@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create.auth.dto';
 import { VerifyOtpDto } from './dto/verify.otp.dto';
@@ -22,10 +22,18 @@ export class AuthController {
   }
 
   @Post('/register')
-  async register(@Body() registerAuthDto: RegisterAuthDto) {
-    const response = await this.authService.register(registerAuthDto);
+  async register(
+    @Body() registerAuthDto: RegisterAuthDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = await this.authService.register(registerAuthDto);
 
-    return response;
+    res.cookie('token', token, {
+      maxAge: 1.1 * 3600 * 1000,
+      httpOnly: true,
+    });
+
+    return { token };
   }
 
   @Post('/login')

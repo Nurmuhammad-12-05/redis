@@ -46,4 +46,12 @@ export class RedisService {
   async delKey(key: string) {
     await this.redis.del(key);
   }
+
+  async sessionTokenUser(phone_number: string, token: string) {
+    await this.redis.setex(`session_token:${phone_number}`, 300, token);
+  }
+
+  async getKey(key: string) {
+    return await this.redis.get(key);
+  }
 }
