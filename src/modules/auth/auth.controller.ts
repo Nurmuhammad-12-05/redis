@@ -4,6 +4,8 @@ import { CreateAuthDto } from './dto/create.auth.dto';
 import { VerifyOtpDto } from './dto/verify.otp.dto';
 import { Response } from 'express';
 import { RegisterAuthDto } from './dto/register.dto';
+import { LoginPhoneAndPasswordDto } from './dto/login.phone.password.dto';
+import { LoginPhoneNumberDto } from './dto/login.phone.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -36,6 +38,36 @@ export class AuthController {
     return { token };
   }
 
-  @Post('/login')
-  async login() {}
+  @Post('/login-phone-password')
+  async loginWithPhoneAndPassword(
+    @Body() loginhoneAndPassword: LoginPhoneAndPasswordDto,
+  ) {
+    const response =
+      await this.authService.loginWithPhoneAndPassword(loginhoneAndPassword);
+
+    return response;
+  }
+
+  @Post('/login-check-code')
+  async loginCode(
+    @Body() verifyOtpDto: VerifyOtpDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = await this.authService.loginCode(verifyOtpDto);
+
+    res.cookie('token', token, {
+      maxAge: 1.1 * 3600 * 1000,
+      httpOnly: true,
+    });
+
+    return { token };
+  }
+
+  @Post('/login-phone-number')
+  async loginWithPhoneNumber(@Body() loginPhoneNumberDto: LoginPhoneNumberDto) {
+    const response =
+      await this.authService.loginWithPhoneNumber(loginPhoneNumberDto);
+
+    return response;
+  }
 }

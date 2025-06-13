@@ -10,6 +10,8 @@ import { VerifyOtpDto } from './dto/verify.otp.dto';
 import { RegisterAuthDto } from './dto/register.dto';
 import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { LoginPhoneAndPasswordDto } from './dto/login.phone.password.dto';
+import { LoginPhoneNumberDto } from './dto/login.phone.dto';
 
 @Injectable()
 export class AuthService {
@@ -91,5 +93,63 @@ export class AuthService {
     return token;
   }
 
-  async login() {}
+  async loginWithPhoneAndPassword(
+    loginhoneAndPassword: LoginPhoneAndPasswordDto,
+  ) {
+    const findUser = await this.db.prisma.user.findFirst({
+      where: { phone_number: loginhoneAndPassword.phone_number },
+    });
+
+    if (!findUser)
+      throw new ConflictException('Invalid phone number or password');
+
+    const comparePassword = await bcrypt.compare(
+      loginhoneAndPassword.password,
+      findUser.password,
+    );
+
+    if (!comparePassword)
+      throw new ConflictException('invalid phone number or password');
+
+    await this.otpService.sendOtp(loginhoneAndPassword.phone_number);
+
+    return {
+      message: 'code sended',
+    };
+  }
+
+  async loginCode(verifyOtpDto: VerifyOtpDto) {
+    const key = `user:${verifyOtpDto.phone_number}`;
+
+    await this.otpService.verifyOtpSendUser(
+      key,
+      verifyOtpDto.code,
+      verifyOtpDto.phone_number,
+    );
+
+    const user = await this.db.prisma.user.findFirst({
+      where: {
+        phone_number: verifyOtpDto.phone_number,
+      },
+    });
+
+    const token = await this.jwtService.signAsync({ userId: user?.id });
+
+    return token;
+  }
+
+  async loginWithPhoneNumber(loginPhoneNumberDto: LoginPhoneNumberDto) {
+    const findUser = await this.db.prisma.user.findFirst({
+      where: { phone_number: loginPhoneNumberDto.phone_number },
+    });
+
+    if (!findUser)
+      throw new ConflictException('Invalid phone number or password');
+
+    await this.otpService.sendOtp(loginPhoneNumberDto.phone_number);
+
+    return {
+      message: 'code sended',
+    };
+  }
 }
