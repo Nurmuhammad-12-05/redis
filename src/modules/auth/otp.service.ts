@@ -71,7 +71,9 @@ export class OtpService {
 
     if (!sessionToken || sessionToken !== token)
       throw new BadRequestException('session token expired');
+  }
 
+  async delSessionTokenUser(key: string) {
     await this.redisService.delKey(key);
   }
 }

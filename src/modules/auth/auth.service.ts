@@ -4,7 +4,6 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
-import { RedisService } from 'src/core/database/redis.service';
 import { CreateAuthDto } from './dto/create.auth.dto';
 import { OtpService } from './otp.service';
 import { VerifyOtpDto } from './dto/verify.otp.dto';
@@ -17,7 +16,6 @@ export class AuthService {
   constructor(
     private readonly db: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly redisService: RedisService,
     private readonly otpService: OtpService,
   ) {}
 
@@ -87,6 +85,8 @@ export class AuthService {
     });
 
     const token = await this.jwtService.signAsync({ userId: user.id });
+
+    await this.otpService.delSessionTokenUser(key);
 
     return token;
   }
