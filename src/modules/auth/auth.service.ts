@@ -127,6 +127,8 @@ export class AuthService {
       verifyOtpDto.phone_number,
     );
 
+    await this.otpService.delSessionTokenUser(key);
+
     const user = await this.db.prisma.user.findFirst({
       where: {
         phone_number: verifyOtpDto.phone_number,

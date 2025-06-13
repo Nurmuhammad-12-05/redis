@@ -2,12 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { RedisService } from '../../core/database/redis.service';
 import { generate } from 'otp-generator';
 import { SmsService } from './sms.service';
+import { OtpSecurityService } from './otp.security.service';
 
 @Injectable()
 export class OtpService {
   constructor(
     private readonly redisService: RedisService,
     private readonly smsService: SmsService,
+    private readonly otpSecurityService: OtpSecurityService,
   ) {}
 
   private generateOtp() {
@@ -28,6 +30,8 @@ export class OtpService {
   }
 
   async sendOtp(phone_number: string) {
+    await this.otpSecurityService.checkIfTemporaryBlockedUser(phone_number);
+
     await this.checkOtpExisted(`user:${phone_number}`);
 
     const tempOtp = this.generateOtp();
@@ -51,9 +55,23 @@ export class OtpService {
   }
 
   async verifyOtpSendUser(key: string, code: string, phone_number: string) {
+    await this.otpSecurityService.checkIfTemporaryBlockedUser(phone_number);
+
     const otp = await this.redisService.getOtp(key);
 
-    if (!otp || otp !== code) throw new BadRequestException('Invalid code');
+    if (!otp) {
+      throw new BadRequestException('Invalid code');
+    }
+
+    if (otp !== code) {
+      const attempts =
+        await this.otpSecurityService.recordFailedOtpAttempts(phone_number);
+
+      throw new BadRequestException({
+        message: 'Invalid code',
+        attempts: `You have ${attempts} attempts `,
+      });
+    }
 
     await this.redisService.delKey(key);
 
