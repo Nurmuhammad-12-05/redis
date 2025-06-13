@@ -75,6 +75,10 @@ export class OtpService {
 
     await this.redisService.delKey(key);
 
+    await this.otpSecurityService.delOtpAttempts(
+      `otp_attempts:${phone_number}`,
+    );
+
     const sessionToken = this.getSessionToken();
 
     await this.redisService.sessionTokenUser(phone_number, sessionToken);

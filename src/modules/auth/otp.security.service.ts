@@ -45,6 +45,8 @@ export class OtpSecurityService {
         unblockedAt: data + this.blockedDuration * 1000,
       }),
     );
+
+    await this.delOtpAttempts(`otp_attempts:${phone_number}`);
   }
 
   async checkIfTemporaryBlockedUser(phone_number: string) {
@@ -59,5 +61,9 @@ export class OtpSecurityService {
         message: `You tried  too much, please try after ${Math.floor(ttlKey / 60)} minutes`,
       });
     }
+  }
+
+  async delOtpAttempts(key: string) {
+    await this.redisService.delKey(key);
   }
 }
