@@ -52,7 +52,7 @@ export class EmailOtpService {
   }
 
   async getEmailToken(token: string) {
-    const key = `email-verify:${token}`;
+    const key = `email_verify:${token}`;
 
     return await this.redisService.getKey(key);
   }
