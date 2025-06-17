@@ -7,8 +7,6 @@ export class SmsService {
   private readonly email: string = process.env.ESKIZ_EMAIL as string;
   private readonly password: string = process.env.ESKIZ_PASSWORD as string;
 
-  constructor() {}
-
   async getToken() {
     try {
       const url = ENDPOINTS.getEskizTokenUrl();
