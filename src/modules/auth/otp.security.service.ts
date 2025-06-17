@@ -25,12 +25,12 @@ export class OtpSecurityService {
 
     const res = this.maxAttempsOtp - attempts;
 
-    if (res === 0) await this.TemporaryBlockUser(phone_number, attempts);
+    if (res === 0) await this.temporaryBlockUser(phone_number, attempts);
 
     return res;
   }
 
-  async TemporaryBlockUser(phone_number: string, attempts: number) {
+  async temporaryBlockUser(phone_number: string, attempts: number) {
     const key = `temporary_blocked_user:${phone_number}`;
 
     const data = Date.now();
