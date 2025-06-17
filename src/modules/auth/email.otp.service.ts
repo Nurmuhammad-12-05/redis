@@ -7,8 +7,6 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class EmailOtpService {
   private readonly MAX_DURATION_LINK: number = 86400;
-  private readonly MAX_EMAIL_RATE: number = 30;
-  private readonly MAX_HOURLY_LIMIT: number = 10;
 
   constructor(
     private readonly resendService: ResendService,
