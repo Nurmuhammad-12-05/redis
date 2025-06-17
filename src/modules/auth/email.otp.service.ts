@@ -38,10 +38,6 @@ export class EmailOtpService {
     }
   }
 
-  async sendEmailWithOtp(email: string) {
-    const otp = this.otpService.generateOtp();
-  }
-
   async setEmailToken(token: string, email: string) {
     const key = `email-verify:${token}`;
 
